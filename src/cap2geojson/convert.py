@@ -11,29 +11,29 @@ def get_properties(alert):
     Returns:
         dict: The formatted properties object.
     """
-    info = alert["info"]
+    info = alert["cap:info"]
     return {
-        "identifier": alert["identifier"],
-        "sender": alert["sender"],
-        "sent": alert["sent"],
-        "status": alert["status"],
-        "msgType": alert["msgType"],
-        "scope": alert["scope"],
-        "category": info["category"],
-        "event": info["event"],
-        "urgency": info["urgency"],
-        "severity": info["severity"],
-        "certainty": info["certainty"],
-        "effective": info["effective"],
-        "onset": info["onset"],
-        "expires": info["expires"],
-        "senderName": info["senderName"],
-        "headline": info["headline"],
-        "description": info["description"],
-        "instruction": info["instruction"],
-        "web": info["web"],
-        "contact": info["contact"],
-        "areaDesc": get_area_desc(info["area"]),
+        "identifier": alert["cap:identifier"],
+        "sender": alert["cap:sender"],
+        "sent": alert["cap:sent"],
+        "status": alert["cap:status"],
+        "msgType": alert["cap:msgType"],
+        "scope": alert["cap:scope"],
+        "category": info["cap:category"],
+        "event": info["cap:event"],
+        "urgency": info["cap:urgency"],
+        "severity": info["cap:severity"],
+        "certainty": info["cap:certainty"],
+        "effective": info["cap:effective"],
+        "onset": info["cap:onset"],
+        "expires": info["cap:expires"],
+        "senderName": info["cap:senderName"],
+        "headline": info["cap:headline"],
+        "description": info["cap:description"],
+        "instruction": info["cap:instruction"],
+        "web": info["cap:web"],
+        "contact": info["cap:contact"],
+        "areaDesc": get_area_desc(info["cap:area"]),
     }
 
 
@@ -47,8 +47,8 @@ def get_area_desc(area):
         str: The formatted area description.
     """
     if isinstance(area, dict):
-        return area["areaDesc"]
-    return ", ".join([a["areaDesc"] for a in area])
+        return area["cap:areaDesc"]
+    return ", ".join([a["cap:areaDesc"] for a in area])
 
 
 def get_circle_coord(theta, x_center, y_center, radius):
@@ -97,7 +97,7 @@ def get_multi_coordinates(area):
     Returns:
         list: The formatted multi-polygon coordinates.
     """
-    # Idea: loop over each area object and check if it's "circle" or "polygon"
+    # Idea: loop over each area object and check if it's "cap:circle" or "cap:polygon"
     # If it's a circle, calculate the circle coordinates and add them to the list
     # If it's a polygon, add the polygon coordinates to the list
 
@@ -112,7 +112,7 @@ def to_geojson(xml):
         dict: The final GeoJSON object.
     """
     data = xmltodict.parse(xml)
-    alert = data["alert"]
+    alert = data["cap:alert"]
 
     alert_properties = get_properties(alert)
     multi_polygon_coordinates = get_multi_coordinates(alert)
