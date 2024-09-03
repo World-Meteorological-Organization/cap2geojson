@@ -32,5 +32,5 @@ logging.basicConfig(
 )
 
 
-def convert(xml: str) -> dict:
+def transform(xml: str) -> dict:
     return to_geojson(xml)
