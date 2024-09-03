@@ -1,8 +1,9 @@
 import math
+from typing import Union
 import xmltodict
 
 
-def get_properties(alert):
+def get_properties(alert: dict) -> dict:
     """Creates the properties object for the GeoJSON Feature object from the CAP alert.
 
     Args:
@@ -37,11 +38,12 @@ def get_properties(alert):
     }
 
 
-def get_area_desc(area):
-    """Formats the area description for the GeoJSON properties object.
+def get_area_desc(area: Union[dict, list]) -> str:
+    """Formats the area description so that if the area is a list of areas,
+    they are concatenated into a single string delimited by commas.
 
     Args:
-        area (dict): The area information of the CAP alert.
+        area (Union[dict, list]): The area information of the CAP alert.
 
     Returns:
         str: The formatted area description.
@@ -51,58 +53,85 @@ def get_area_desc(area):
     return ", ".join([a["cap:areaDesc"] for a in area])
 
 
-def get_circle_coord(theta, x_center, y_center, radius):
-    """Calculates the x and y coordinates of a point on a circle.
+def get_all_circle_coords(
+    x_centre: float, y_centre: float, radius: float, n_points: int
+) -> list:
+    """
+    Estimate the n coordinates of a circle with a given centre and radius.
 
     Args:
-        theta (_type_): _description_
-        x_center (_type_): _description_
-        y_center (_type_): _description_
-        radius (_type_): _description_
-
-    Returns:
-        tuple: The x and y coordinates of the point, rounded to 5dp.
-    """
-    x = radius * math.cos(theta) + x_center
-    y = radius * math.sin(theta) + y_center
-    return (round(x, 5), round(y, 5))
-
-
-def get_all_circle_coords(x_center, y_center, radius, n_points):
-    """
-    Estimate the n coordinates of a circle with a given center and radius.
-
-    Args:
-        x_center (_type_): _description_
-        y_center (_type_): _description_
-        radius (_type_): _description_
-        n_points (_type_): _description_
+        x_centre (float): The longitude of the circle's centre.
+        y_centre (float): The latitude of the circle's centre.
+        radius (float): The radius of the circle.
+        n_points (int): The number of edges in the n-gon to approximate
+        the circle.
 
     Returns:
         list: The n estimated coordinates of the circle.
     """
+
+    def get_circle_coord(theta: float, x_centre: float,
+                         y_centre: float, radius: float) -> list:
+        x = radius * math.cos(theta) + x_centre
+        y = radius * math.sin(theta) + y_centre
+        # Round to 5 decimal places to prevent excessive precision
+        return [round(x, 5), round(y, 5)]
+
     thetas = [i / n_points * math.tau for i in range(n_points)]
     circle_coords = [
-        get_circle_coord(theta, x_center, y_center, radius) for theta in thetas
+        get_circle_coord(theta, x_centre, y_centre, radius) for theta in thetas
     ]
     return circle_coords
 
 
-def get_multi_coordinates(area):
-    """Formats the coordinates for the GeoJSON MultiPolygon object.
+def get_polygon_coordinates(single_area: dict) -> list:
+    """Formats the coordinates for the GeoJSON Polygon object.
 
     Args:
-        area (dict): The area information of the CAP alert.
+        single_area (dict): The area information of one simply-connected
+        region affected by the CAP alert.
 
     Returns:
-        list: The formatted multi-polygon coordinates.
+        list: The list of polygon coordinate pairs.
     """
-    # Idea: loop over each area object and check if it's "cap:circle" or "cap:polygon"
-    # If it's a circle, calculate the circle coordinates and add them to the list
-    # If it's a polygon, add the polygon coordinates to the list
+    if "cap:circle" in single_area:
+        # Takes form "x,y r"
+        centre, radius = map(float, single_area["cap:circle"].split(" "))
+        x_centre, y_centre = centre.split(",")
+        # Estimate the circle coordinates with n=100 points
+        return get_all_circle_coords(x_centre, y_centre, radius, 100)
+
+    if "cap:polygon" in single_area:
+        # Takes form "x,y x,y x,y" but with newlines that need to be removed
+        polygon_str = single_area["cap:polygon"].replace("\n", "").split()
+        return [list(map(float, coord.split(","))) for coord in polygon_str]
+
+    return []
 
 
-def to_geojson(xml):
+def get_geometry(area: Union[dict, list]) -> dict:
+    """Creates the geometry object for the GeoJSON Feature object.
+
+    Args:
+        area (Union[dict, list]): The area(s) affected by the CAP alert.
+        If there are multiple areas, they are in a list and will be formatted
+        as a MultiPolygon.
+
+    Returns:
+        dict: The formatted geometry object.
+    """
+    if isinstance(area, list):
+        return {
+            "type": "MultiPolygon",
+            "coordinates": [get_polygon_coordinates(a) for a in area],
+        }
+    return {
+        "type": "Polygon",
+        "coordinates": get_polygon_coordinates(area),
+    }
+
+
+def to_geojson(xml: bytes) -> dict:
     """Takes the CAP alert XML and converts it to a GeoJSON.
 
     Args:
@@ -115,7 +144,7 @@ def to_geojson(xml):
     alert = data["cap:alert"]
 
     alert_properties = get_properties(alert)
-    multi_polygon_coordinates = get_multi_coordinates(alert)
+    alert_geometry = get_geometry(alert["cap:info"]["cap:area"])
 
     return {
         "type": "FeatureCollection",
@@ -123,10 +152,7 @@ def to_geojson(xml):
             {
                 "type": "Feature",
                 "properties": alert_properties,
-                "geometry": {
-                    "type": "MultiPolygon",
-                    "coordinates": [multi_polygon_coordinates],
-                },
+                "geometry": alert_geometry,
             }
         ],
     }
