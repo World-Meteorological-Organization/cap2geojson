@@ -1,3 +1,4 @@
+import json
 import logging
 import math
 from typing import Union
@@ -19,27 +20,27 @@ def get_properties(alert: dict) -> dict:
     """
     info = alert["info"]
     return {
-        "identifier": alert["identifier"],
-        "sender": alert["sender"],
-        "sent": alert["sent"],
-        "status": alert["status"],
-        "msgType": alert["msgType"],
-        "scope": alert["scope"],
-        "category": info["category"],
-        "event": info["event"],
-        "urgency": info["urgency"],
-        "severity": info["severity"],
-        "certainty": info["certainty"],
-        "effective": info["effective"],
-        "onset": info["onset"],
-        "expires": info["expires"],
-        "senderName": info["senderName"],
-        "headline": info["headline"],
-        "description": info["description"],
-        "instruction": info["instruction"],
-        "web": info["web"],
-        "contact": info["contact"],
-        "areaDesc": get_area_desc(info["area"]),
+        "identifier": alert.get("identifier"),
+        "sender": alert.get("sender"),
+        "sent": alert.get("sent"),
+        "status": alert.get("status"),
+        "msgType": alert.get("msgType"),
+        "scope": alert.get("scope"),
+        "category": info.get("category"),
+        "event": info.get("event"),
+        "urgency": info.get("urgency"),
+        "severity": info.get("severity"),
+        "certainty": info.get("certainty"),
+        "effective": info.get("effective"),
+        "onset": info.get("onset"),
+        "expires": info.get("expires"),
+        "senderName": info.get("senderName"),
+        "headline": info.get("headline"),
+        "description": info.get("description"),
+        "instruction": info.get("instruction"),
+        "web": info.get("web"),
+        "contact": info.get("contact"),
+        "areaDesc": get_area_desc(info.get("area")),
     }
 
 
@@ -78,16 +79,49 @@ def get_all_circle_coords(
     def get_circle_coord(
         theta: float, x_centre: float, y_centre: float, radius: float
     ) -> list:
+        """Calculate the x and y coordinates of a point on a circle,
+        given the angle theta and the circle's centre and radius."""
         x = radius * math.cos(theta) + x_centre
         y = radius * math.sin(theta) + y_centre
         # Round to 5 decimal places to prevent excessive precision
         return [round(x, 5), round(y, 5)]
 
+    # Generate thetas for the n-gon
     thetas = [i / n_points * math.tau for i in range(n_points)]
     circle_coords = [
         get_circle_coord(theta, x_centre, y_centre, radius) for theta in thetas
     ]
+    # Ensure the circle is closed by adding the first coordinate to the end
+    circle_coords.append(circle_coords[0])
     return circle_coords
+
+
+def ensure_counter_clockwise(coords: list) -> list:
+    """
+    Ensure the polygon coordinates are in counter-clockwise order,
+    a.k.a. the right-hand rule.
+
+    Args:
+        coords (list): List of coordinate pairs.
+
+    Returns:
+        list: List of coordinate pairs in counter-clockwise order.
+    """
+
+    def signed_area(coords):
+        """Calculate the signed area of the polygon, to help
+        determine the order of the coordinates."""
+        area = 0
+        n = len(coords)
+        for i in range(n):
+            x1, y1 = coords[i]
+            x2, y2 = coords[(i + 1) % n]
+            area += x1 * y2 - x2 * y1
+        return area / 2
+
+    if signed_area(coords) < 0:
+        coords.reverse()
+    return coords
 
 
 def get_polygon_coordinates(single_area: dict) -> list:
@@ -102,15 +136,17 @@ def get_polygon_coordinates(single_area: dict) -> list:
     """
     if "circle" in single_area:
         # Takes form "x,y r"
-        centre, radius = map(float, single_area["circle"].split(" "))
-        x_centre, y_centre = centre.split(",")
+        centre, radius = single_area["circle"].split(" ")
+        radius = float(radius)
+        x_centre, y_centre = map(float, centre.split(","))
         # Estimate the circle coordinates with n=100 points
         return get_all_circle_coords(x_centre, y_centre, radius, 100)
 
     if "polygon" in single_area:
         # Takes form "x,y x,y x,y" but with newlines that need to be removed
         polygon_str = single_area["polygon"].replace("\n", "").split()
-        return [list(map(float, coord.split(","))) for coord in polygon_str]
+        polygon_list = [list(map(float, coord.split(","))) for coord in polygon_str]
+        return ensure_counter_clockwise(polygon_list)
 
     return []
 
@@ -129,15 +165,15 @@ def get_geometry(area: Union[dict, list]) -> dict:
     if isinstance(area, list):
         return {
             "type": "MultiPolygon",
-            "coordinates": [get_polygon_coordinates(a) for a in area],
+            "coordinates": [[get_polygon_coordinates(a)] for a in area],
         }
     return {
         "type": "Polygon",
-        "coordinates": get_polygon_coordinates(area),
+        "coordinates": [get_polygon_coordinates(area)],
     }
 
 
-def handle_namespace(xml: str) -> str:
+def preprocess_alert(xml: str) -> str:
     """Removes the 'cap:' prefix from the XML string tags,
     so for example '<cap:info>' becomes '<info>' and '</cap:info>'
     becomes '</info>'.
@@ -148,9 +184,7 @@ def handle_namespace(xml: str) -> str:
     Returns:
         str: The XML string with the 'cap:' prefix removed from the tags.
     """
-    xml = re.sub(r"<cap:(\w+)>", r"<\1>", xml)
-    xml = re.sub(r"</cap:(\w+)>", r"</\1>", xml)
-    return xml
+    return re.sub(r"<(/?)cap:(\w+)", r"<\1\2", xml)
 
 
 def to_geojson(xml: str) -> dict:
@@ -162,14 +196,14 @@ def to_geojson(xml: str) -> dict:
     Returns:
         dict: The final GeoJSON object.
     """
-    xml = handle_namespace(xml)
-    data = xmltodict.parse(xml)
+    processed_xml = preprocess_alert(xml)
+    data = xmltodict.parse(processed_xml)
 
     alert = data["alert"]
     alert_properties = get_properties(alert)
     alert_geometry = get_geometry(alert["info"]["area"])
 
-    return {
+    result = {
         "type": "FeatureCollection",
         "features": [
             {
@@ -179,3 +213,5 @@ def to_geojson(xml: str) -> dict:
             }
         ],
     }
+
+    return json.dumps(result, indent=4)
