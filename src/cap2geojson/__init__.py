@@ -19,6 +19,18 @@
 #
 ###############################################################################
 
-from .convert import Converter
+import logging
 
-__version__ = '0.1.0-dev1'
+from .convert import to_geojson
+
+__version__ = "0.1.0-dev1"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+
+
+def convert(xml: str) -> dict:
+    return to_geojson(xml)
