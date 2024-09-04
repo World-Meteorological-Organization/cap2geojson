@@ -22,5 +22,8 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.scripts]
+cap2geojson = "cap2geojson:cli.cli"
+
 [tool.setuptools.dynamic]
 version = {attr = "cap2geojson.__version__"}
