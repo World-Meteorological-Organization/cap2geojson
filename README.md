@@ -1,6 +1,6 @@
 # The CAP to GeoJSON Converter
 
-### The Python module for making CAP alerts visualizable
+### The Python package for making CAP alerts visualizable
 
 <div align="center">
 
