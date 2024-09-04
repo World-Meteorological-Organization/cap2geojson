@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alert xmlns = "urn:oasis:names:tc:emergency:cap:1.2">
+    <identifier>2.49.0.0.724.0.ES.20240904092839.622201PRP106221725442119</identifier>
+    <sender>http://www.aemet.es</sender>
+    <sent>2024-09-04T09:28:39-00:00</sent>
+    <status>Actual</status>
+    <msgType>Alert</msgType>
+    <scope>Public</scope>
+    <info>
+        <language>es-ES</language>
+        <category>Met</category>
+        <event>Aviso de lluvias de nivel amarillo</event>
+        <responseType>Monitor</responseType>
+        <urgency>Future</urgency>
+        <severity>Moderate</severity>
+        <certainty>Likely</certainty>
+        <eventCode>
+            <valueName>AEMET-Meteoalerta fenomeno</valueName>
+            <value>PR;Lluvias</value>
+        </eventCode>
+        <effective>2024-09-04T11:28:39+02:00</effective>
+        <onset>2024-09-06T00:00:00+02:00</onset>
+        <expires>2024-09-06T23:59:59+02:00</expires>
+        <senderName>AEMET. Agencia Estatal de Meteorología</senderName>
+        <headline>Aviso de lluvias de nivel amarillo. Pirineo oscense</headline>
+        <description>Precipitación acumulada en una hora: 20 mm.</description>
+        <instruction>Esté atento. Manténgase informado de la predicción meteorológica más actualizada. Se pueden producir daños moderados a personas y bienes, especialmente a aquellos vulnerables o en zonas expuestas al fenómeno.</instruction>
+        <web>https://www.aemet.es/es/eltiempo/prediccion/avisos</web>
+        <contact>AEMET</contact>
+        <parameter>
+            <valueName>AEMET-Meteoalerta nivel</valueName>
+            <value>amarillo</value>
+        </parameter>
+        <parameter>
+            <valueName>AEMET-Meteoalerta parametro</valueName>
+            <value>P1;Precipitación acumulada en una hora;20 mm</value>
+        </parameter>
+        <parameter>
+            <valueName>AEMET-Meteoalerta probabilidad</valueName>
+            <value>40%-70%</value>
+        </parameter>
+        <area>
+            <areaDesc>Pirineo oscense</areaDesc>
+            <polygon>42.74,-0.9 42.79,-0.85 42.85,-0.86 42.88,-0.81 42.9,-0.82 42.92,-0.78 42.92,-0.73 42.9,-0.73 42.83,-0.6 42.8,-0.6 42.78,-0.57 42.8,-0.52 42.82,-0.51 42.8,-0.44 42.8,-0.39 42.84,-0.35 42.84,-0.31 42.81,-0.24 42.78,-0.16 42.73,-0.11 42.72,-0.07 42.69,-0.06 42.69,0.0 42.72,0.09 42.72,0.14 42.74,0.18 42.72,0.26 42.67,0.3 42.72,0.36 42.69,0.4 42.69,0.58 42.7,0.59 42.69,0.66 42.66,0.7 42.62,0.71 42.61,0.77 42.55,0.75 42.53,0.73 42.5,0.73 42.47,0.7 42.44,0.71 42.39,0.75 42.35,0.76 42.25,0.74 42.17,0.7 42.12,0.7 42.08,0.68 42.03,0.65 41.96,0.58 41.97,0.55 41.97,0.47 41.99,0.47 42.03,0.44 42.07,0.41 42.06,0.35 42.06,0.32 42.16,0.33 42.17,0.3 42.23,0.28 42.22,0.19 42.24,0.15 42.25,0.1 42.28,0.11 42.3,0.07 42.3,0.01 42.26,0.01 42.26,-0.04 42.32,-0.04 42.36,-0.06 42.31,-0.14 42.3,-0.17 42.31,-0.22 42.34,-0.23 42.35,-0.36 42.34,-0.4 42.34,-0.47 42.36,-0.52 42.39,-0.58 42.39,-0.65 42.43,-0.65 42.48,-0.7 42.45,-0.73 42.46,-0.78 42.44,-0.85 42.46,-0.88 42.54,-0.92 42.59,-0.92 42.61,-0.9 42.66,-0.93 42.67,-0.89 42.7,-0.9 42.74,-0.9</polygon>
+            <geocode>
+                <valueName>AEMET-Meteoalerta zona</valueName>
+                <value>622201</value>
+            </geocode>
+        </area>
+    </info>
+    <info>
+        <language>en-GB</language>
+        <category>Met</category>
+        <event>Moderate rain warning</event>
+        <responseType>Monitor</responseType>
+        <urgency>Future</urgency>
+        <severity>Moderate</severity>
+        <certainty>Likely</certainty>
+        <eventCode>
+            <valueName>AEMET-Meteoalerta fenomeno</valueName>
+            <value>PR;Lluvias</value>
+        </eventCode>
+        <effective>2024-09-04T11:28:39+02:00</effective>
+        <onset>2024-09-06T00:00:00+02:00</onset>
+        <expires>2024-09-06T23:59:59+02:00</expires>
+        <senderName>AEMET. State Meteorological Agency</senderName>
+        <headline>Moderate rain warning. Pirineo oscense</headline>
+        <description>One-hour accumulated precipitation: 20 mm.</description>
+        <instruction>Be aware, keep up to date with the latest weather forecast. Moderate damages to people and properties may occur, especially to those vulnerable or in exposed areas.</instruction>
+        <web>https://www.aemet.es/en/eltiempo/prediccion/avisos</web>
+        <contact>AEMET</contact>
+        <parameter>
+            <valueName>AEMET-Meteoalerta nivel</valueName>
+            <value>amarillo</value>
+        </parameter>
+        <parameter>
+            <valueName>AEMET-Meteoalerta parametro</valueName>
+            <value>P1;One-hour accumulated precipitation;20 mm</value>
+        </parameter>
+        <parameter>
+            <valueName>AEMET-Meteoalerta probabilidad</valueName>
+            <value>40%-70%</value>
+        </parameter>
+        <area>
+            <areaDesc>Pirineo oscense</areaDesc>
+            <polygon>42.74,-0.9 42.79,-0.85 42.85,-0.86 42.88,-0.81 42.9,-0.82 42.92,-0.78 42.92,-0.73 42.9,-0.73 42.83,-0.6 42.8,-0.6 42.78,-0.57 42.8,-0.52 42.82,-0.51 42.8,-0.44 42.8,-0.39 42.84,-0.35 42.84,-0.31 42.81,-0.24 42.78,-0.16 42.73,-0.11 42.72,-0.07 42.69,-0.06 42.69,0.0 42.72,0.09 42.72,0.14 42.74,0.18 42.72,0.26 42.67,0.3 42.72,0.36 42.69,0.4 42.69,0.58 42.7,0.59 42.69,0.66 42.66,0.7 42.62,0.71 42.61,0.77 42.55,0.75 42.53,0.73 42.5,0.73 42.47,0.7 42.44,0.71 42.39,0.75 42.35,0.76 42.25,0.74 42.17,0.7 42.12,0.7 42.08,0.68 42.03,0.65 41.96,0.58 41.97,0.55 41.97,0.47 41.99,0.47 42.03,0.44 42.07,0.41 42.06,0.35 42.06,0.32 42.16,0.33 42.17,0.3 42.23,0.28 42.22,0.19 42.24,0.15 42.25,0.1 42.28,0.11 42.3,0.07 42.3,0.01 42.26,0.01 42.26,-0.04 42.32,-0.04 42.36,-0.06 42.31,-0.14 42.3,-0.17 42.31,-0.22 42.34,-0.23 42.35,-0.36 42.34,-0.4 42.34,-0.47 42.36,-0.52 42.39,-0.58 42.39,-0.65 42.43,-0.65 42.48,-0.7 42.45,-0.73 42.46,-0.78 42.44,-0.85 42.46,-0.88 42.54,-0.92 42.59,-0.92 42.61,-0.9 42.66,-0.93 42.67,-0.89 42.7,-0.9 42.74,-0.9</polygon>
+            <geocode>
+                <valueName>AEMET-Meteoalerta zona</valueName>
+                <value>622201</value>
+            </geocode>
+        </area>
+    </info>
+</alert>

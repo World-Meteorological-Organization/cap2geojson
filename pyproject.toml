@@ -1,0 +1,29 @@
+[build-system]
+requires  = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cap2geojson"
+authors = [
+    {name = "Rory Burke"}
+]
+maintainers = [
+    {name = "Rory Burke", email = "rburke@wmo.int"}
+]
+description = "Python package to convert a CAP XML file into a GeoJSON."
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["WIS2.0", "CAP", "XML", "GeoJSON", "convert"]
+license = {file = "LICENSE"}
+dependencies = [
+    "xmltodict>=0.13.0",
+    "geojson>=3.1.0",
+    "click>=8.1.7"
+]
+dynamic = ["version"]
+
+[project.scripts]
+cap2geojson = "cap2geojson:cli.cli"
+
+[tool.setuptools.dynamic]
+version = {attr = "cap2geojson.__version__"}
