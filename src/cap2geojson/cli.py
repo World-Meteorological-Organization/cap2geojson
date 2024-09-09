@@ -1,4 +1,5 @@
 import click
+import json
 
 from cap2geojson import __version__, transform as transform_to_geojson
 
@@ -20,7 +21,8 @@ def transform(ctx, cap_xml) -> None:
     filename = cap_xml.name.split(".")[0] + ".geojson"
 
     try:
-        result = transform_to_geojson(cap)
+        output = transform_to_geojson(cap)
+        result = json.dumps(output, indent=2)
         # Write the contents to a file
         with open(filename, "w") as f:
             f.write(result)
