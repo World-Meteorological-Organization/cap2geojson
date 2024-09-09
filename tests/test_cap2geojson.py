@@ -45,7 +45,12 @@ def test_to_geojson(sc_alert):
     with open("tests/output/sc.geojson", "r") as f:
         expected = json.load(f)
 
-    assert to_geojson(sc_alert) == expected
+    actual = to_geojson(sc_alert)
+
+    print("Expected:", expected)
+    print("Actual:", actual)
+
+    assert actual == expected
 
 
 @pytest.fixture

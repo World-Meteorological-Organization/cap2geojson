@@ -224,7 +224,8 @@ def to_geojson(xml: str) -> dict:
     }
 
     try:
-        geojson.loads(result)
+        # Verify the GeoJSON is valid
+        geojson.loads(json.dumps(result))
     except Exception as e:
         logger.error(f"Error converting to GeoJSON: {e}")
         raise
