@@ -137,7 +137,9 @@ def get_polygon_coordinates(single_area: dict) -> list:
     if "polygon" in single_area:
         # Takes form "x,y x,y x,y" but with newlines that need to be removed
         polygon_str = single_area["polygon"].replace("\n", "").split()
-        polygon_list = [list(map(float, coord.split(","))) for coord in polygon_str] # noqa
+        polygon_list = [
+            list(map(float, coord.split(","))) for coord in polygon_str
+        ]  # noqa
         return ensure_counter_clockwise(polygon_list)
 
     return []
@@ -179,14 +181,14 @@ def preprocess_alert(xml: str) -> str:
     return re.sub(r"<(/?)cap:(\w+)", r"<\1\2", xml)
 
 
-def to_geojson(xml: str) -> str:
+def to_geojson(xml: str) -> dict:
     """Takes the CAP alert XML and converts it to a GeoJSON.
 
     Args:
         xml (str): The CAP XML string.
 
     Returns:
-        str: The final GeoJSON object stringified.
+        str: The final GeoJSON object.
     """
     processed_xml = preprocess_alert(xml)
 
@@ -210,22 +212,20 @@ def to_geojson(xml: str) -> str:
 
     alert_geometry = get_geometry(area)
 
-    result = json.dumps(
-        {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "properties": alert_properties,
-                    "geometry": alert_geometry,
-                }
-            ],
-        },
-        indent=4,
-    )
+    result = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": alert_properties,
+                "geometry": alert_geometry,
+            }
+        ],
+    }
 
     try:
-        geojson.loads(result)
+        # Verify the GeoJSON is valid
+        geojson.loads(json.dumps(result))
     except Exception as e:
         logger.error(f"Error converting to GeoJSON: {e}")
         raise
