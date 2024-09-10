@@ -23,7 +23,7 @@ import logging
 
 from .convert import to_geojson
 
-__version__ = "0.1.0-dev2"
+__version__ = "0.1.0-dev3"
 
 logging.basicConfig(
     level=logging.INFO,
