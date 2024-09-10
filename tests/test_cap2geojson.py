@@ -83,7 +83,7 @@ def test_circle_coords(circle):
 @pytest.fixture
 def circle_area():
     return {
-        "circle": "5.0,3.0 7.0",
+        "circle": "3.0,5.0 7.0",
     }
 
 

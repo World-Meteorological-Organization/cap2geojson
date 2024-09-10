@@ -127,18 +127,19 @@ def get_polygon_coordinates(single_area: dict) -> list:
         list: The list of polygon coordinate pairs.
     """
     if "circle" in single_area:
-        # Takes form "x,y r"
+        # Takes form "y,x r"
         centre, radius = single_area["circle"].split(" ")
         radius = float(radius)
-        x_centre, y_centre = map(float, centre.split(","))
+        y_centre, x_centre = map(float, centre.split(","))
         # Estimate the circle coordinates with n=100 points
         return list(get_circle_coords(x_centre, y_centre, radius, 100))
 
     if "polygon" in single_area:
-        # Takes form "x,y x,y x,y" but with newlines that need to be removed
+        # Takes form "y,x y,x y,x". So, split on whitespace, then comma, and
+        # reverse the order of the coordinates to be (x, y).
         polygon_str = single_area["polygon"].replace("\n", "").split()
         polygon_list = [
-            list(map(float, coord.split(","))) for coord in polygon_str
+            list(map(float, coord.split(",")[::-1])) for coord in polygon_str
         ]  # noqa
         return ensure_counter_clockwise(polygon_list)
 
