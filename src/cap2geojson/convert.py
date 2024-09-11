@@ -1,10 +1,14 @@
-import geojson
 import json
 import logging
-import math
-from typing import Generator, Union
 import re
+from typing import Generator, Union
+
+import geojson
 import xmltodict
+from pyproj import Transformer
+from shapely.geometry import Point
+from shapely.geometry.polygon import orient
+from shapely.ops import transform as transform_bufr
 
 logger = logging.getLogger(__name__)
 
@@ -61,31 +65,56 @@ def get_area_desc(area: Union[dict, list]) -> str:
 
 
 def get_circle_coords(
-    x_centre: float, y_centre: float, radius: float, n_points: int
+    x_centre: float, y_centre: float, radius: float
 ) -> Generator[list, None, None]:
     """
-    Estimate the n+1 coordinates of a circle with a given centre and radius.
+    Estimate the n+1 coordinates of a circle with a given centre and radius
+    using the azimuthal equidistant projection.
 
     Args:
         x_centre (float): The longitude of the circle's centre.
         y_centre (float): The latitude of the circle's centre.
-        radius (float): The radius of the circle.
-        n_points (int): The number of edges in the n-gon to approximate
-        the circle.
+        radius (float): The radius of the circle in kilometres.
 
     Returns:
         Generator: Yield the n+1 estimated coordinates of the circle.
     """
-    # Generate thetas for the n-gon
-    thetas = [i / n_points * math.tau for i in range(n_points)]
-    # Add theta = 0 to the end to ensure the circle is closed
-    thetas.append(0)
+    # Validate latitude and longitude
+    if not (-90 <= y_centre <= 90):
+        raise ValueError(
+            f"Invalid latitude value: {y_centre}. Must be between -90 and 90 degrees." # noqa
+        )
+    if not (-180 <= x_centre <= 180):
+        raise ValueError(
+            f"Invalid longitude value: {x_centre}. Must be between -180 and 180 degrees." # noqa
+        )
 
-    for theta in thetas:
-        x = radius * math.cos(theta) + x_centre
-        y = radius * math.sin(theta) + y_centre
-        # Round to 5 decimal places to prevent excessive precision
-        yield [round(x, 5), round(y, 5)]
+    # Create local azimuthal equidistant projection
+    local_azimuthal_projection = (
+        f"+proj=aeqd +R=6371000 +units=m +lat_0={y_centre} +lon_0={x_centre}"
+    )
+    wgs84_to_aeqd = Transformer.from_proj(
+        "+proj=longlat +datum=WGS84 +no_defs", local_azimuthal_projection
+    )
+    aeqd_to_wgs84 = Transformer.from_proj(
+        local_azimuthal_projection, "+proj=longlat +datum=WGS84 +no_defs"
+    )
+
+    # Transform the center point to the local projection
+    point_transformed = Point(wgs84_to_aeqd.transform(x_centre, y_centre))
+
+    # Create a buffer around the transformed point, with radius in metres
+    buffer = point_transformed.buffer(radius*1000)
+
+    # Transform the buffer back to WGS84 coordinates
+    circle = transform_bufr(aeqd_to_wgs84.transform, buffer)
+
+    # Ensure the coordinates follow the right-hand rule (counter-clockwise)
+    circle = orient(circle, sign=1.0)
+
+    # Extract the coordinates from the transformed buffer
+    for coord in circle.exterior.coords:
+        yield [round(coord[0], 5), round(coord[1], 5)]
 
 
 def ensure_counter_clockwise(coords: list) -> list:
@@ -132,7 +161,7 @@ def get_polygon_coordinates(single_area: dict) -> list:
         radius = float(radius)
         y_centre, x_centre = map(float, centre.split(","))
         # Estimate the circle coordinates with n=100 points
-        return list(get_circle_coords(x_centre, y_centre, radius, 100))
+        return list(get_circle_coords(x_centre, y_centre, radius))
 
     if "polygon" in single_area:
         # Takes form "y,x y,x y,x". So, split on whitespace, then comma, and

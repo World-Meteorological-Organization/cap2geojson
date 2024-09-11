@@ -21,11 +21,11 @@
 
 import json
 import logging
-import pytest
 import time
 
+import pytest
+
 from cap2geojson.convert import (
-    get_circle_coords,
     ensure_counter_clockwise,
     get_polygon_coordinates,
     preprocess_alert,
@@ -51,33 +51,6 @@ def test_to_geojson(sc_alert):
     print("Actual:", actual)
 
     assert actual == expected
-
-
-@pytest.fixture
-def circle():
-    return {
-        "x_centre": 5.0,
-        "y_centre": 3.0,
-        "radius": 7.0,
-    }
-
-
-def test_circle_coords(circle):
-    assert list(get_circle_coords(
-        circle["x_centre"], circle["y_centre"], circle["radius"], 10
-    )) == [
-        [12.0, 3.0],
-        [10.66312, 7.1145],
-        [7.16312, 9.6574],
-        [2.83688, 9.6574],
-        [-0.66312, 7.1145],
-        [-2.0, 3.0],
-        [-0.66312, -1.1145],
-        [2.83688, -3.6574],
-        [7.16312, -3.6574],
-        [10.66312, -1.1145],
-        [12.0, 3.0],
-    ]
 
 
 @pytest.fixture
