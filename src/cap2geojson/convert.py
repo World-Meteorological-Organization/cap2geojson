@@ -6,6 +6,7 @@ import geojson
 import xmltodict
 from pyproj import Transformer
 from shapely.geometry import Point
+from shapely.geometry.polygon import orient
 from shapely.ops import transform as transform_bufr
 
 from typing import Generator, Union
@@ -108,6 +109,9 @@ def get_circle_coords(
 
     # Transform the buffer back to WGS84 coordinates
     circle = transform_bufr(aeqd_to_wgs84.transform, buffer)
+
+    # Ensure the coordinates follow the right-hand rule (counter-clockwise)
+    circle = orient(circle, sign=1.0)
 
     # Extract the coordinates from the transformed buffer
     for coord in circle.exterior.coords:
