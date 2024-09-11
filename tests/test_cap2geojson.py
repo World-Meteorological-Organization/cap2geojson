@@ -21,11 +21,11 @@
 
 import json
 import logging
-import pytest
 import time
 
+import pytest
+
 from cap2geojson.convert import (
-    get_circle_coords,
     ensure_counter_clockwise,
     get_polygon_coordinates,
     preprocess_alert,

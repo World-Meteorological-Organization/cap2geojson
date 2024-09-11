@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from typing import Generator, Union
 
 import geojson
 import xmltodict
@@ -8,8 +9,6 @@ from pyproj import Transformer
 from shapely.geometry import Point
 from shapely.geometry.polygon import orient
 from shapely.ops import transform as transform_bufr
-
-from typing import Generator, Union
 
 logger = logging.getLogger(__name__)
 
