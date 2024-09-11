@@ -16,9 +16,11 @@ requires-python = ">=3.8"
 keywords = ["WIS2.0", "CAP", "XML", "GeoJSON", "convert"]
 license = {file = "LICENSE"}
 dependencies = [
-    "xmltodict>=0.13.0",
+    "click>=8.1.7",
     "geojson>=3.1.0",
-    "click>=8.1.7"
+    "pyproj>=3.6.0",
+    "shapely>=2.0.0",
+    "xmltodict>=0.13.0",
 ]
 dynamic = ["version"]
 
